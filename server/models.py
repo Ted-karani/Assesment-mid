@@ -9,10 +9,16 @@ class Exercise(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     category = db.Column(db.String)
-    equipment_needed = db.Column(db.Boolean)
+    equipment_needed = db.Column(db.Boolean, nullable=False)
 
     workout_exercises = db.relationship('WorkoutExercise', back_populates='exercise')
     workouts = association_proxy('workout_exercises', 'workout')
+
+    @validates('name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError('Exercise must have a name.')
+        return name
 
     def __repr__(self):
         return f'<Exercise {self.id}, {self.name}, {self.category}>'
