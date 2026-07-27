@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
+from marshmallow import Schema, fields
 db = SQLAlchemy()
 
 class Exercise(db.Model):
@@ -52,3 +53,27 @@ class WorkoutExercise(db.Model):
 
     def __repr__(self):
         return f'<WorkoutExercise {self.id}, reps={self.reps}, sets={self.sets}>'    
+
+class WorkoutExerciseSchema(Schema):
+    id = fields.Integer()
+    reps = fields.Integer()
+    sets = fields.Integer()
+    duration_seconds = fields.Integer()
+    workout = fields.Nested(lambda: WorkoutSchema(exclude=("workout_exercises",)))
+    exercise = fields.Nested(lambda: ExerciseSchema(exclude=("workout_exercises",)))
+
+
+class WorkoutSchema(Schema):
+    id = fields.Integer()
+    date = fields.Date()
+    duration_minutes = fields.Integer()
+    notes = fields.String()
+    workout_exercises = fields.Nested(lambda: WorkoutExerciseSchema(exclude=("workout",)), many=True)
+
+
+class ExerciseSchema(Schema):
+    id = fields.Integer()
+    name = fields.String()
+    category = fields.String()
+    equipment_needed = fields.Boolean()
+    workout_exercises = fields.Nested(lambda: WorkoutExerciseSchema(exclude=("exercise",)), many=True)    
