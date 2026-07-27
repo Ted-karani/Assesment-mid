@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validates, ValidationError
 db = SQLAlchemy()
 
 class Exercise(db.Model):
@@ -61,6 +61,11 @@ class WorkoutExerciseSchema(Schema):
     duration_seconds = fields.Integer()
     workout = fields.Nested(lambda: WorkoutSchema(exclude=("workout_exercises",)))
     exercise = fields.Nested(lambda: ExerciseSchema(exclude=("workout_exercises",)))
+
+    @validates('reps')
+    def validate_reps(self, value):
+        if value is not None and value < 0:
+            raise ValidationError('Reps cannot be negative.')
 
 
 class WorkoutSchema(Schema):
