@@ -94,7 +94,18 @@ def delete_exercise(id):
     db.session.commit()
     return '', 204
 
+def add_exercise_to_workout(workout_id, exercise_id):
+    data = request.get_json()
+    new_workout_exercise = WorkoutExercise(
+        workout_id=workout_id,
+        exercise_id=exercise_id,
+        reps=data.get('reps'),
 
+    
+    )
+    db.session.add(new_workout_exercise)
+    db.session.commit()
+    return jsonify(WorkoutExerciseSchema().dump(new_workout_exercise)), 201
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
